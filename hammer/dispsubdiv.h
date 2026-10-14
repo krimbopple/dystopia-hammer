@@ -19,6 +19,8 @@ class IEditDispSubdivMesh
 {
 public:
 
+	virtual ~IEditDispSubdivMesh( void ) {}
+
 	virtual void Init( void ) = 0;
 	virtual void Shutdown( void ) = 0;
 

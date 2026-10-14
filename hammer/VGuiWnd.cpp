@@ -27,7 +27,6 @@ class CBaseMainPanel : public vgui::EditablePanel
 public:
 
 	CBaseMainPanel(Panel *parent, const char *panelName) : vgui::EditablePanel( parent, panelName ) {};
-	virtual ~CBaseMainPanel() {}
 
 	virtual	void OnSizeChanged(int newWide, int newTall)
 	{
@@ -222,6 +221,7 @@ LRESULT CVGuiWnd::WindowProcVGui( UINT uMsg, WPARAM wParam, LPARAM lParam )
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_MBUTTONDOWN:
+		SetRepaintInterval( 13 ); // Cannot do 16, framerate is only 40
 	case WM_MOUSEMOVE:
         {
 			// switch vgui focus to this panel
@@ -248,6 +248,7 @@ LRESULT CVGuiWnd::WindowProcVGui( UINT uMsg, WPARAM wParam, LPARAM lParam )
 	case WM_LBUTTONDBLCLK:
 	case WM_RBUTTONDBLCLK:
 	case WM_MBUTTONDBLCLK:
+		SetRepaintInterval( 30 ); // Cannot do 33, framerate is only 20
 	case WM_MOUSEWHEEL:
 	case WM_KEYDOWN:
 	case WM_SYSKEYDOWN:

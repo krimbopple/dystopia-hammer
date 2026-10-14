@@ -60,8 +60,8 @@ static BOOL g_b4Views = TRUE;
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : b4Views - 
+// Purpose:
+// Input  : b4Views -
 //-----------------------------------------------------------------------------
 void SetDefaultChildType(BOOL b4Views)
 {
@@ -84,7 +84,7 @@ CChildFrame::CChildFrame(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CChildFrame::~CChildFrame(void)
 {
@@ -97,8 +97,8 @@ CChildFrame::~CChildFrame(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : cs - 
+// Purpose:
+// Input  : cs -
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
 BOOL CChildFrame::PreCreateWindow(CREATESTRUCT& cs)
@@ -110,8 +110,8 @@ BOOL CChildFrame::PreCreateWindow(CREATESTRUCT& cs)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : 
+// Purpose:
+// Input  :
 // Output : CView *
 //-----------------------------------------------------------------------------
 CView * CChildFrame::GetActiveView()
@@ -139,8 +139,8 @@ CView * CChildFrame::GetActiveView()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : bSplitter - 
+// Purpose:
+// Input  : bSplitter -
 //-----------------------------------------------------------------------------
 void CChildFrame::SetSplitterMode(BOOL bSplitter)
 {
@@ -223,7 +223,7 @@ void CChildFrame::SetSplitterMode(BOOL bSplitter)
 
 //-----------------------------------------------------------------------------
 // Purpose: Replaces the current active view with a given view type.
-// Input  : *pViewClass - 
+// Input  : *pViewClass -
 // Output : CView
 //-----------------------------------------------------------------------------
 CView *CChildFrame::ReplaceView(CRuntimeClass *pViewClass)
@@ -236,7 +236,7 @@ CView *CChildFrame::ReplaceView(CRuntimeClass *pViewClass)
 	{
 		return(NULL);
 	}
-	
+
 	//
 	// If we're already displaying this kind of view, no need to go
 	// further.
@@ -245,7 +245,7 @@ CView *CChildFrame::ReplaceView(CRuntimeClass *pViewClass)
 	{
 		return(pCurrentView);
 	}
- 
+
 	//
 	// Get pointer to CDocument object so that it can be used in the
 	// creation process of the new view. Set flag so that the document
@@ -272,7 +272,7 @@ CView *CChildFrame::ReplaceView(CRuntimeClass *pViewClass)
 
     // Restore the autodelete flag.
     pDoc->m_bAutoDelete = bAutoDelete;
- 
+
 	// Create new view and redraw.
 	CCreateContext context;
 
@@ -281,7 +281,7 @@ CView *CChildFrame::ReplaceView(CRuntimeClass *pViewClass)
 	context.m_pNewDocTemplate = NULL;
 	context.m_pLastView = NULL;
 	context.m_pCurrentFrame=this;
- 
+
 	CView *pNewView = NULL;
 
 	if (bUsingSplitter)
@@ -306,27 +306,27 @@ CView *CChildFrame::ReplaceView(CRuntimeClass *pViewClass)
 		}
  	}
 
-	if (!pNewView) 
+	if (!pNewView)
 	{
 		TRACE0("Warning: couldn't create view for frame\n");
 		return(NULL);
 	}
- 
+
 	pNewView->SendMessage(WM_INITIALUPDATE, 0, 0);
 
 	if (bUsingSplitter)
 	{
 		m_wndSplitter->RecalcLayout();
 	}
- 
+
 	return(pNewView);
 }
 
 
 #ifdef _DEBUG
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : 
+// Purpose:
+// Input  :
 //-----------------------------------------------------------------------------
 void CChildFrame::AssertValid() const
 {
@@ -334,8 +334,8 @@ void CChildFrame::AssertValid() const
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : dc - 
+// Purpose:
+// Input  : dc -
 //-----------------------------------------------------------------------------
 void CChildFrame::Dump(CDumpContext& dc) const
 {
@@ -398,7 +398,7 @@ void CChildFrame::SaveOptions(void)
 void CChildFrame::SetViewType(DrawType_t eViewType)
 {
 	CMapView *pNewView = NULL;
-	
+
 	switch (eViewType)
 	{
 		case VIEW2D_XY:
@@ -539,8 +539,8 @@ void CChildFrame::OnView3dSmooth(void)
 // Purpose: Overloaded to handle the 2x2 splitter. If the splitter is enabled,
 //			the splitter window is createed and one 3D view and three 2D views
 //			are added to it.
-// Input  : lpcs - 
-//			pContext - 
+// Input  : lpcs -
+//			pContext -
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
 BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext *pContext)
@@ -552,7 +552,7 @@ BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext *pContext)
 	{
 		m_wndSplitter = new CMySplitterWnd;
 		Assert(m_wndSplitter != NULL);
-		
+
 		if (m_wndSplitter == NULL)
 		{
 			return(FALSE);
@@ -565,7 +565,7 @@ BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext *pContext)
 			TRACE0("Failed to create split bar ");
 			return(FALSE);
 		}
-		
+
 		//
 		// Calculate the size of each view within the splitter,
 		//
@@ -592,7 +592,7 @@ BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext *pContext)
 				{
 					eDrawType[nRow][nCol] = VIEW3D_TEXTURED;
 				}
-			
+
 				switch (eDrawType[nRow][nCol])
 				{
 					case VIEW2D_XY:
@@ -630,7 +630,7 @@ BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext *pContext)
 				}
 			}
 		}
-		
+
 		int nWidth = APP()->GetProfileInt("Splitter", "SplitterWidth", -1);
 		int nHeight = APP()->GetProfileInt("Splitter", "SplitterHeight", -1);
 
@@ -657,7 +657,7 @@ BOOL CChildFrame::OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext *pContext)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CChildFrame::CenterViews(void)
 {
@@ -672,21 +672,21 @@ void CChildFrame::CenterViews(void)
 	GetClientRect(r);
 	CSize sizeView(r.Width()/2 - 3, r.Height()/2 - 3);
 
-	sizeView.cy = max(0, sizeView.cy);
-	sizeView.cx = max(0, sizeView.cx);
+	sizeView.cy = max(0L, sizeView.cy);
+	sizeView.cx = max(0L, sizeView.cx);
 
 	m_wndSplitter->SetRowInfo(0, sizeView.cy, 0);
 	m_wndSplitter->SetRowInfo(1, sizeView.cy, 0);
 	m_wndSplitter->SetColumnInfo(0, sizeView.cx, 0);
 	m_wndSplitter->SetColumnInfo(1, sizeView.cx, 0);
 	m_wndSplitter->RecalcLayout();
-	
+
 	WriteDebug("childfrm::centerviews done");
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CChildFrame::OnViewAutosize4(void)
 {
@@ -708,32 +708,32 @@ void CChildFrame::OnViewAutosize4(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pCmdUI - 
+// Purpose:
+// Input  : pCmdUI -
 //-----------------------------------------------------------------------------
-void CChildFrame::OnUpdateViewAutosize4(CCmdUI *pCmdUI) 
+void CChildFrame::OnUpdateViewAutosize4(CCmdUI *pCmdUI)
 {
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nType - 
-//			cx - 
-//			cy - 
+// Purpose:
+// Input  : nType -
+//			cx -
+//			cy -
 //-----------------------------------------------------------------------------
-void CChildFrame::OnSize(UINT nType, int cx, int cy) 
+void CChildFrame::OnSize(UINT nType, int cx, int cy)
 {
 	CMDIChildWnd::OnSize(nType, cx, cy);
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : lpCreateStruct - 
+// Purpose:
+// Input  : lpCreateStruct -
 // Output : int
 //-----------------------------------------------------------------------------
-int CChildFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) 
+int CChildFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CMDIChildWnd::OnCreate(lpCreateStruct) == -1)
 	{
@@ -769,7 +769,7 @@ int CChildFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CChildFrame::OnPaint(void)
 {
@@ -790,8 +790,8 @@ void CChildFrame::OnPaint(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pWnd - 
+// Purpose:
+// Input  : *pWnd -
 //-----------------------------------------------------------------------------
 void CMySplitterWnd::ToggleMax(CWnd *pWnd)
 {
@@ -860,7 +860,7 @@ void CMySplitterWnd::OnDrawSplitter(CDC* pDC, ESplitType nType, const CRect& rec
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CChildFrame::OnViewMaximizepane(void)
 {
@@ -879,18 +879,18 @@ void CChildFrame::OnViewMaximizepane(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pCmdUI - 
+// Purpose:
+// Input  : *pCmdUI -
 //-----------------------------------------------------------------------------
-void CChildFrame::OnUpdateViewMaximizepane(CCmdUI *pCmdUI) 
+void CChildFrame::OnUpdateViewMaximizepane(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable();	
+	pCmdUI->Enable();
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : 
+// Purpose:
+// Input  :
 //-----------------------------------------------------------------------------
 void CChildFrame::OnWindowToggle(void)
 {

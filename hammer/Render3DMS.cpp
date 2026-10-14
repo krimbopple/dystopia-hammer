@@ -161,7 +161,6 @@ float CRender3D::LightPlane(Vector& Normal)
 CRender3D::CRender3D(void)
 {
 	memset(&m_WinData, 0, sizeof(m_WinData));
-	m_WinData.bAllowSoft = true;
 
 	memset(m_FrustumPlanes, 0, sizeof(m_FrustumPlanes));
 
@@ -882,7 +881,7 @@ static bool LightForString( char const *pLight, Vector& intensity )
 }
 
 // ugly code copied from vrad and munged. Should move into a lib
-static bool LightForKey (CMapEntity *ent, char *key, Vector& intensity )
+static bool LightForKey (CMapEntity *ent, const char *key, Vector& intensity )
 {
 	char const *pLight = ent->GetKeyValue( key );
 
@@ -1081,6 +1080,7 @@ void CRender3D::BuildLightList( CUtlVector<CLightingPreviewLightDescription> *pL
 {
 	CMapDoc *pDoc = m_pView->GetMapDoc();
 	CMapWorld *pWorld = pDoc->GetMapWorld();
+	s_bAddedLightEnvironmentAlready = false;
 
 	if ( !pWorld )
 		return;
@@ -1202,8 +1202,6 @@ void CRender3D::EndRenderFrame(void)
 				view_changed = true;
 			if (m_pView->m_bUpdateView && (m_eCurrentRenderMode == RENDER_MODE_LIGHT_PREVIEW_RAYTRACED))
 			{
-
-				static bool did_dump=false;
 				static float Last_SendTime=0;
 				// now, lets create floatbms with the deferred rendering data, so we can pass it to the lpreview thread
 				float newtime=Plat_FloatTime();
@@ -1221,7 +1219,6 @@ void CRender3D::EndRenderFrame(void)
 						m_nLastLPreviewHeight = height;
 						m_nLastLPreviewWidth = width;
 
-
 						g_nBitmapGenerationCounter++;
 						Last_SendTime=newtime;
 						if (g_pLPreviewOutputBitmap)
@@ -1235,19 +1232,9 @@ void CRender3D::EndRenderFrame(void)
 							SetRenderTargetNamed(0,rts_to_transmit[i]);
 							FloatBitMap_t *fbm = new FloatBitMap_t( nTargetWidth, nTargetHeight );
 							Msg.m_pDefferedRenderingBMs[i]=fbm;
-							pRenderContext->ReadPixels(0, 0, nTargetWidth, nTargetHeight, (uint8 *) &(fbm->Pixel(0,0,0)),
-												  IMAGE_FORMAT_RGBA32323232F);
-							if ( (i==0) && (! did_dump) )
-							{
-								fbm->WriteTGAFile("albedo.tga");
-							}
-							if ( (i==1) && (! did_dump) )
-							{
-								fbm->WriteTGAFile("normal.tga");
-							}
+							pRenderContext->ReadPixels(0, 0, nTargetWidth, nTargetHeight, (uint8 *) &(fbm->Pixel(0,0,0)), IMAGE_FORMAT_RGBA32323232F);
 						}
 						pRenderContext->SetRenderTarget( NULL );
-						did_dump = true;
 						n_gbufs_queued++;
 						pCamera->GetViewPoint( Msg.m_EyePosition );
 						Msg.m_nBitmapGenerationCounter=g_nBitmapGenerationCounter;
@@ -1290,14 +1277,14 @@ void CRender3D::EndRenderFrame(void)
 				// now, add lights in priority order
 				for( int i = 0; i < lightList.Count(); i++ )
 				{
-					LightDesc_t *pLight = &lightList[i];
+					CLightingPreviewLightDescription *pLight = &lightList[i];
 					if (
 						( pLight->m_Type == MATERIAL_LIGHT_SPOT ) ||
-						( pLight->m_Type == MATERIAL_LIGHT_POINT ) )
+						( pLight->m_Type == MATERIAL_LIGHT_POINT ) ||
+						( pLight->m_Type == MATERIAL_LIGHT_DIRECTIONAL && ( pLight->m_nObjectID & 0x80000000 ) == 0 ) )
 					{
-						Vector lpnt;
 						CLightPreview_Light tmplight;
-						tmplight.m_Light = *pLight;
+						tmplight.m_Light = static_cast<LightDesc_t&>(*pLight);
 						tmplight.m_flDistanceToEye = pLight->m_Position.DistTo( eye_pnt );
 						light_queue.Insert(tmplight);
 					}
@@ -1355,7 +1342,7 @@ void CRender3D::EndRenderFrame(void)
 					SetNamedMaterialVar(src_mat,"$C1_Z", spot_dir.z );
 
 					// now, handle cone angle
-					if ( light.m_Type == MATERIAL_LIGHT_POINT )
+					if ( light.m_Type == MATERIAL_LIGHT_POINT || light.m_Type == MATERIAL_LIGHT_DIRECTIONAL )
 					{
 						// model point as a spot with infinite inner radius
 						SetNamedMaterialVar(src_mat, "$C0_W", 0.5 );
@@ -1400,35 +1387,10 @@ void CRender3D::EndRenderFrame(void)
 		}
 		MaterialSystemInterface()->SwapBuffers();
 
-		if ( (m_eCurrentRenderMode == RENDER_MODE_LIGHT_PREVIEW_RAYTRACED) &&
-			 g_pLPreviewOutputBitmap )
+		if ( (m_eCurrentRenderMode == RENDER_MODE_LIGHT_PREVIEW_RAYTRACED) && g_pLPreviewOutputBitmap )
 		{
-			// blit it
-			BITMAPINFOHEADER mybmh;
-			mybmh.biHeight=-g_pLPreviewOutputBitmap->Height();
-			mybmh.biSize=sizeof(BITMAPINFOHEADER);
-			// now, set up bitmapheader struct for StretchDIB
-			mybmh.biWidth=g_pLPreviewOutputBitmap->Width();
-			mybmh.biPlanes=1;
-			mybmh.biBitCount=32;
-			mybmh.biCompression=BI_RGB;
-			mybmh.biSizeImage=g_pLPreviewOutputBitmap->Width()*g_pLPreviewOutputBitmap->Height();
-
-			RECT wrect;
-			memset(&wrect,0,sizeof(wrect));
-
-			CCamera *pCamera = GetCamera();
-			int width, height;
-			pCamera->GetViewPort( width, height );
-// 			StretchDIBits(
-// 				m_WinData.hDC,0,0,width,height,
-// 				0,0,g_pLPreviewOutputBitmap->m_nWidth, g_pLPreviewOutputBitmap->m_nHeight,
-// 				g_pLPreviewOutputBitmap->m_pBits, (BITMAPINFO *) &mybmh,
-// 				DIB_RGB_COLORS, SRCCOPY);
-
 			// remember that we blitted it
-			m_pView->m_nLastRaytracedBitmapRenderTimeStamp =
-				GetUpdateCounter( EVTYPE_BITMAP_RECEIVED_FROM_LPREVIEW );
+			m_pView->m_nLastRaytracedBitmapRenderTimeStamp = GetUpdateCounter( EVTYPE_BITMAP_RECEIVED_FROM_LPREVIEW );
 		}
 
 		if (g_bShowStatistics)
@@ -1465,7 +1427,7 @@ void CRender3D::EndRenderFrame(void)
 			GetCamera()->GetViewUp(ViewUp);
 			QAngle ang;
 			VectorAngles( ViewForward, ViewUp, ang );
-			int nLen = sprintf(szText, "FPS=%3.2f Pos=[%.f %.f %.f] Ang=[%.f %.f %.f]", m_fFrameRate, ViewPoint[0], ViewPoint[1], ViewPoint[2], ang[0], ang[1], ang[2]);
+			int nLen = sprintf(szText, "FPS=%3.2f Pos=[%.f %.f %.f] Ang=[%.f %.f]", m_fFrameRate, ViewPoint[0], ViewPoint[1], ViewPoint[2], ang[0], ang[1]);
 			TextOut(m_WinData.hDC, 2, 18, szText, nLen);
 		}
 	}
@@ -1548,30 +1510,7 @@ void CRender3D::Render(void)
 		 g_pLPreviewOutputBitmap &&
 		 (! view_changed ) )
 	{
-		// blit it
-		/*BITMAPINFOHEADER mybmh;
-		mybmh.biHeight=-g_pLPreviewOutputBitmap->Height();
-		mybmh.biSize=sizeof(BITMAPINFOHEADER);
-		// now, set up bitmapheader struct for StretchDIB
-		mybmh.biWidth=g_pLPreviewOutputBitmap->Width();
-		mybmh.biPlanes=1;
-		mybmh.biBitCount=32;
-		mybmh.biCompression=BI_RGB;
-		mybmh.biSizeImage=g_pLPreviewOutputBitmap->Width()*g_pLPreviewOutputBitmap->Height();*/
-
-		//RECT wrect;
-		//memset(&wrect,0,sizeof(wrect));
-
-		//int width, height;
-		//pCamera->GetViewPort( width, height );
-// 		StretchDIBits(
-// 			m_WinData.hDC,0,0,width,height,
-// 			0,0,g_pLPreviewOutputBitmap->m_nWidth, g_pLPreviewOutputBitmap->m_nHeight,
-// 			g_pLPreviewOutputBitmap->m_pBits, (BITMAPINFO *) &mybmh,
-// 			DIB_RGB_COLORS, SRCCOPY);
-		m_pView->m_nLastRaytracedBitmapRenderTimeStamp =
-			GetUpdateCounter( EVTYPE_BITMAP_RECEIVED_FROM_LPREVIEW );
-//		return;
+		m_pView->m_nLastRaytracedBitmapRenderTimeStamp = GetUpdateCounter( EVTYPE_BITMAP_RECEIVED_FROM_LPREVIEW );
 	}
 
 	StartRenderFrame();
@@ -1585,7 +1524,7 @@ void CRender3D::Render(void)
 	//
 	// Deferred rendering lets us sort everything here by material.
 	//
-	if (!IsPicking())
+	if ( !IsPicking() && m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW2 && m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW_RAYTRACED )
 	{
 		m_DeferRendering = true;
 	}
@@ -1615,7 +1554,7 @@ void CRender3D::Render(void)
 		RenderMapClass(pDoc->GetMapWorld());
 	}
 
-	if (!IsPicking())
+	if ( !IsPicking() && m_DeferRendering )
 	{
 		m_DeferRendering = false;
 
@@ -2304,9 +2243,9 @@ void CRender3D::RenderMapClass(CMapClass *pMapClass)
 				}
 				else
 				{
-					if (
-						(m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW2) &&
-						(m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW_RAYTRACED) )
+					//if (
+					//	(m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW2) &&
+					//	(m_eCurrentRenderMode != RENDER_MODE_LIGHT_PREVIEW_RAYTRACED) )
 					{
 						AddTranslucentDeferredRendering( pMapClass );
 					}
@@ -2586,11 +2525,6 @@ void CRender3D::ShutDown(void)
 	{
 		m_WinData.hDC = NULL;
 	}
-
-	if (m_WinData.bFullScreen)
-	{
-		ChangeDisplaySettings(NULL, 0);
-	}
 }
 
 
@@ -2620,25 +2554,7 @@ void CRender3D::RenderEnable(RenderState_t eRenderState, bool bEnable)
 
 		case RENDER_POLYGON_OFFSET_LINE:
 		{
-			assert(0);
-			/* FIXME:
-			   Think we'll need to have two versions of the wireframe material
-			   one which ztests with offset + culling, the other which doesn't
-			   ztest, doesn't offect, and doesn't cull??!?
-
-			   m_pWireframeIgnoreZ->SetIntValue( bEnable );
-			   m_pWireframe->GetMaterial()->InitializeStateSnapshots();
-			   /*
-			   if (bEnable)
-			   {
-			   glEnable(GL_POLYGON_OFFSET_LINE);
-			   glPolygonOffset(-1, -1);
-			   }
-			   else
-			   {
-			   glDisable(GL_POLYGON_OFFSET_LINE);
-			   }
-			*/
+			Assert(0);
 			break;
 		}
 
@@ -2677,8 +2593,8 @@ void CRender3D::DebugHook1(void *pData)
 	g_bShowStatistics = !g_bShowStatistics;
 
 #ifdef _DEBUG
-	m_bRecomputeFrustumRenderGeometry = true;
-	m_bRenderFrustum = true;
+	m_bRenderFrustum ^= true;
+	m_bRecomputeFrustumRenderGeometry = m_bRenderFrustum;
 #endif
 
 	//if (!m_bDroppedCamera)

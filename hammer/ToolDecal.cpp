@@ -117,7 +117,7 @@ bool CToolDecal::OnLMouseDown3D(CMapView3D *pView, UINT nFlags, const Vector2D &
 
 			CMapWorld *pWorld = pDoc->GetMapWorld();
 
-			CMapDecal *pDecal = pEntity->GetChildOfType((CMapDecal *)NULL);
+			CMapDecal *pDecal = pEntity->GetChildOfType<CMapDecal>();
 			if (pDecal != NULL)
 			{
 				pDecal->DecalAllSolids(pWorld);

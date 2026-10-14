@@ -21,7 +21,7 @@ enum
 class KeyValues;
 
 // command:
-typedef struct
+typedef struct CCommand_t
 {
 	BOOL bEnable;				// Run this command?
 
@@ -34,7 +34,7 @@ typedef struct
 	BOOL bUseProcessWnd;
 	BOOL bNoWait;
 
-    void Save(KeyValues *pKv);
+    void Save(KeyValues *pKv) const;
     void Load(KeyValues *pKv);
 
 } CCOMMAND, *PCCOMMAND;

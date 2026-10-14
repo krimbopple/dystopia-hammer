@@ -573,7 +573,7 @@ LayoutType_t CObjectProperties::GetLayout(void)
 					//
 					if (m_DstObjects.Count() == 1)
 					{
-						if (pEntity->GetChildOfType((CMapStudioModel *)NULL))
+						if (pEntity->GetChildOfType<CMapStudioModel>())
 						{
 							eLayoutType = ltModelEntity;
 						}

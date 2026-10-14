@@ -25,7 +25,7 @@
 // 4 - ??? (probably 2009)
 // 5 - SDK 2013
 
-#define SDK_LAUNCHER_VERSION 5
+#define SDK_LAUNCHER_VERSION 6
 // NOTE: Remember to update the default game config file if you up this!
 
 //-----------------------------------------------------------------------------

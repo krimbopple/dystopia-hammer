@@ -28,8 +28,6 @@ public:
 		m_pBrowser = pBrowser;
 	}
 
-	virtual ~CModelBrowserPanel() {}
-
 	virtual	void OnSizeChanged(int newWide, int newTall)
 	{
 		// call Panel and not EditablePanel OnSizeChanged.
@@ -236,7 +234,7 @@ BOOL CModelBrowser::OnInitDialog()
 	m_VGuiWindow.SetParentWindow( &m_VGuiWindow );
 	m_VGuiWindow.SetMainPanel( pMainPanel );
 	pMainPanel->MakePopup( false, false );
-    m_VGuiWindow.SetRepaintInterval( 75 );
+    m_VGuiWindow.SetRepaintInterval( 30 );
 
 
 	m_pPicker->SetParent( pMainPanel );

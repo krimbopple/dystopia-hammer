@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -137,6 +137,7 @@ protected:
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnToolsOptions();
 	afx_msg void OnViewShowconnections();
+	afx_msg BOOL OnInstanceMsg(UINT nID);
 	afx_msg BOOL OnHelpOpenURL(UINT nID);
 	afx_msg void OnHelpFinder();
 	afx_msg void OnEditUndoredoactive();

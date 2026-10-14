@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -20,6 +20,11 @@
 
 int CMapAtom::s_nObjectIDCtr = 1;
 
+struct MCMSTRUCT
+{
+	MAPCLASSTYPE Type;
+	CMapClass* (*pfnNew)();
+};
 static CUtlVector<MCMSTRUCT> s_Classes;
 
 // memdbgon must be the last include file in a .cpp file!!!
@@ -30,13 +35,12 @@ bool CMapClass::s_bLoadingVMF = false;
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : Type - 
-//			pfnNew - 
+// Purpose:
+// Input  : Type -
+//			pfnNew -
 //-----------------------------------------------------------------------------
 CMapClassManager::CMapClassManager(MAPCLASSTYPE Type, CMapClass *(*pfnNew)())
 {
-
 	MCMSTRUCT mcms;
 	mcms.Type = Type;
 	mcms.pfnNew = pfnNew;
@@ -45,7 +49,7 @@ CMapClassManager::CMapClassManager(MAPCLASSTYPE Type, CMapClass *(*pfnNew)())
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CMapClassManager::~CMapClassManager(void)
 {
@@ -54,8 +58,8 @@ CMapClassManager::~CMapClassManager(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : Type - 
+// Purpose:
+// Input  : Type -
 // Output : CMapClass
 //-----------------------------------------------------------------------------
 CMapClass *CMapClassManager::CreateObject(MAPCLASSTYPE Type)
@@ -81,7 +85,6 @@ CMapClass *CMapClassManager::CreateObject(MAPCLASSTYPE Type)
 CMapClass::CMapClass(void)
 {
 	m_pSafeObject = CSafeObject<CMapClass>::Create( this );
-	
 	//
 	// The document manages the unique object IDs. Eventually all object construction
 	// should be done through the document, eliminating the need for CMapClass to know
@@ -110,7 +113,7 @@ CMapClass::CMapClass(void)
 	m_pParent = NULL;
 	m_nRenderFrame = 0;
 	m_pEditorKeys = NULL;
-	m_Dependents.Purge();
+	m_Dependents.RemoveAll();
 }
 
 
@@ -120,23 +123,23 @@ CMapClass::CMapClass(void)
 CMapClass::~CMapClass(void)
 {
 	// Delete all of our children.
-	m_Children.PurgeAndDeleteElements();
+	m_Children.RemoveAll();
 
 	delete m_pEditorKeys;
-	
+
 	// In case any CMapDocs are pointing at us, let them know we're gone.
-	m_pSafeObject->m_pObject = NULL;
-	
+	m_pSafeObject->m_pObject = nullptr;
+
 	// Show a warning if anyone is left pointing at us.
 	static bool bCheckSafeObjects = true;
 	if ( bCheckSafeObjects && m_pSafeObject->GetRefCount() != 1 )
 	{
-		int ret = AfxMessageBox(	"Warning: a CMapClass is being deleted but is still referenced by a CMapDoc.\n"
-									"Please tell a programmer.\n"
-									"Click Yes to write a minidump and continue.\n"
-									"Click No to ignore.", 
-						MB_YESNO );
-		
+		const int ret = AfxMessageBox( "Warning: a CMapClass is being deleted but is still referenced by a CMapDoc.\n"
+									 "Please tell a programmer.\n"
+									 "Click Yes to write a minidump and continue.\n"
+									 "Click No to ignore.",
+									 MB_YESNO );
+
 		if ( ret == IDYES )
 		{
 			WriteMiniDump();
@@ -145,20 +148,14 @@ CMapClass::~CMapClass(void)
 		{
 			// Ignore it and don't get in here again.
 			bCheckSafeObjects = false;
-		}		
+		}
 	}
 }
 
 
-const CSmartPtr< CSafeObject< CMapClass > >& CMapClass::GetSafeObjectSmartPtr()
-{
-	return m_pSafeObject;
-}
-
-
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pDependent - 
+// Purpose:
+// Input  : pDependent -
 //-----------------------------------------------------------------------------
 void CMapClass::AddDependent(CMapClass *pDependent)
 {
@@ -222,7 +219,7 @@ CMapClass *CMapClass::CopyFrom(CMapClass *pFrom, bool bUpdateDependencies)
 {
 	// Copy CMapPoint stuff. dvs: should be in CMapPoint implementation!
 	m_Origin = pFrom->m_Origin;
-	    
+
 	//
 	// Copy CMapClass stuff.
 	//
@@ -301,7 +298,7 @@ void CMapClass::SetCullBoxFromFaceList( CMapFaceList *pFaces )
 			//
 			// Push the culling box out in all directions.
 			// TODO: rotate the culling box based on the cone orientation
-			//			
+			//
 			for (int nDim = 0; nDim < 3; nDim++)
 			{
 				m_CullBox.bmins[0] = min(m_CullBox.bmins[0], m_Origin[0] - point[nDim]);
@@ -390,7 +387,7 @@ const char *CMapClass::GetEditorKeyValue(const char *szKey)
 
 //-----------------------------------------------------------------------------
 // Purpose: Begins a depth-first search of the map heirarchy.
-// Input  : pos - An iterator 
+// Input  : pos - An iterator
 // Output : CMapClass
 //-----------------------------------------------------------------------------
 CMapClass *CMapClass::GetFirstDescendent(EnumChildrenPos_t &pos)
@@ -413,7 +410,7 @@ CMapClass *CMapClass::GetFirstDescendent(EnumChildrenPos_t &pos)
 
 //-----------------------------------------------------------------------------
 // Purpose: Continues a depth-first search of the map heirarchy.
-// Input  : &pos - 
+// Input  : &pos -
 // Output : CMapClass
 //-----------------------------------------------------------------------------
 CMapClass *CMapClass::GetNextDescendent(EnumChildrenPos_t &pos)
@@ -458,7 +455,7 @@ CMapClass *CMapClass::GetNextDescendent(EnumChildrenPos_t &pos)
 				return(pChild);
 			}
 		}
-		
+
 		//
 		// Finished with this object's children, pop the stack and return the object.
 		//
@@ -494,6 +491,14 @@ CMapWorld *CMapClass::GetWorldObject(CMapAtom *pStart)
 	return NULL;
 }
 
+CMapClass* CMapClass::GetPreferredPickObject()
+{
+	CMapClass* pParent = GetParent();
+	if ( pParent )
+		return pParent->GetPreferredPickObject();
+
+	return NULL;
+}
 
 BOOL CMapClass::IsChildOf(CMapAtom *pObject)
 {
@@ -516,7 +521,7 @@ BOOL CMapClass::IsChildOf(CMapAtom *pObject)
 
 //-----------------------------------------------------------------------------
 // Purpose: Returns whether this object belongs to the given visgroup.
-// Input  : pVisGroup - 
+// Input  : pVisGroup -
 //-----------------------------------------------------------------------------
 int CMapClass::IsInVisGroup(CVisGroup *pVisGroup)
 {
@@ -531,13 +536,13 @@ int CMapClass::IsInVisGroup(CVisGroup *pVisGroup)
 			return 0;
 		}
 	}
-		
+
 	return 0;
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : Returns true if the color was specified by this call, false if not.
 //-----------------------------------------------------------------------------
 bool CMapClass::UpdateObjectColor(void)
@@ -593,7 +598,7 @@ void CMapClass::AddVisGroup(CVisGroup *pVisGroup)
 void CMapClass::RemoveVisGroup(CVisGroup *pVisGroup)
 {
 	int nIndex = m_VisGroups.Find(pVisGroup);
-	
+
 	if (nIndex != -1 )
 	{
 		m_VisGroups.FastRemove(nIndex);
@@ -603,7 +608,7 @@ void CMapClass::RemoveVisGroup(CVisGroup *pVisGroup)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 int CMapClass::GetVisGroupCount(void)
 {
@@ -612,7 +617,7 @@ int CMapClass::GetVisGroupCount(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CVisGroup *CMapClass::GetVisGroup(int nIndex)
 {
@@ -621,7 +626,7 @@ CVisGroup *CMapClass::GetVisGroup(int nIndex)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CMapClass::RemoveAllVisGroups(void)
 {
@@ -682,9 +687,9 @@ void CMapClass::RemoveAllChildren(void)
 	// Detach the children from us. They are no longer in our world heirarchy.
 	//
 	FOR_EACH_OBJ( m_Children, pos )
-	{	
+	{
 		m_Children[pos]->m_pParent = NULL;
-	}	
+	}
 
 	//
 	// Remove them from our list.
@@ -745,7 +750,7 @@ void CMapClass::CalcBounds(BOOL bFullUpdate)
 {
 	if ( CMapClass::s_bLoadingVMF )
 		return;
-		
+
 	m_CullBox.ResetBounds();
 	m_Render2DBox.ResetBounds();
 
@@ -810,7 +815,7 @@ void CMapClass::SetRenderColor(unsigned char uchRed, unsigned char uchGreen, uns
 //-----------------------------------------------------------------------------
 // Purpose: Returns a pointer to the object that should be added to the selection
 //			list because this object was clicked on with a given selection mode.
-// Input  : eSelectMode - 
+// Input  : eSelectMode -
 //-----------------------------------------------------------------------------
 CMapClass *CMapClass::PrepareSelection(SelectMode_t eSelectMode)
 {
@@ -893,8 +898,8 @@ BOOL CMapClass::EnumChildrenRecurseGroupsOnly(ENUMMAPCHILDRENPROC pfn, unsigned 
 //-----------------------------------------------------------------------------
 // Purpose: Iterates through an object, and all it's children, looking for an
 //			entity with a matching key and value
-// Input  : key - 
-//			value - 
+// Input  : key -
+//			value -
 // Output : CMapEntity - the entity found
 //-----------------------------------------------------------------------------
 CMapEntity *CMapClass::FindChildByKeyValue( const char* key, const char* value )
@@ -947,7 +952,7 @@ void CMapClass::OnAddToWorld(CMapWorld *pWorld)
 void CMapClass::OnClone( CMapClass *pNewObj, CMapWorld *pWorld, const CMapObjectList &OriginalList, CMapObjectList &NewList )
 {
 	Assert( m_Children.Count() == pNewObj->m_Children.Count() );
-	
+
 	FOR_EACH_OBJ( m_Children, pos )
 	{
 		CMapClass *pChild = m_Children.Element( pos );
@@ -969,7 +974,7 @@ void CMapClass::OnClone( CMapClass *pNewObj, CMapWorld *pWorld, const CMapObject
 void CMapClass::OnPreClone( CMapClass *pNewObj, CMapWorld *pWorld, const CMapObjectList &OriginalList, CMapObjectList &NewList )
 {
 	Assert( m_Children.Count() == pNewObj->m_Children.Count() );
-	
+
 	FOR_EACH_OBJ( m_Children, pos )
 	{
 		CMapClass *pChild = m_Children.Element( pos );
@@ -982,11 +987,11 @@ void CMapClass::OnPreClone( CMapClass *pNewObj, CMapWorld *pWorld, const CMapObj
 //-----------------------------------------------------------------------------
 // Purpose: Notifies this object that a copy of itself is about to be pasted.
 //			Allows the object to generate new unique IDs in the copy of itself.
-// Input  : pCopy - 
-//			pSourceWorld - 
-//			pDestWorld - 
-//			OriginalList - 
-//			NewList - 
+// Input  : pCopy -
+//			pSourceWorld -
+//			pDestWorld -
+//			OriginalList -
+//			NewList -
 //-----------------------------------------------------------------------------
 void CMapClass::OnPrePaste(CMapClass *pCopy, CMapWorld *pSourceWorld, CMapWorld *pDestWorld, const CMapObjectList &OriginalList, CMapObjectList &NewList)
 {
@@ -1006,11 +1011,11 @@ void CMapClass::OnPrePaste(CMapClass *pCopy, CMapWorld *pSourceWorld, CMapWorld 
 // Purpose: Notifies this object that a copy of itself is being pasted.
 //			Allows the object to fixup any references to other objects in the
 //			clipboard with references to their copies.
-// Input  : pCopy - 
-//			pSourceWorld - 
-//			pDestWorld - 
-//			OriginalList - 
-//			NewList - 
+// Input  : pCopy -
+//			pSourceWorld -
+//			pDestWorld -
+//			OriginalList -
+//			NewList -
 //-----------------------------------------------------------------------------
 void CMapClass::OnPaste(CMapClass *pCopy, CMapWorld *pSourceWorld, CMapWorld *pDestWorld, const CMapObjectList &OriginalList, CMapObjectList &NewList)
 {
@@ -1067,7 +1072,7 @@ void CMapClass::PostloadWorld(CMapWorld *pWorld)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Called after all visgroups have been completely loaded.  Checks for 
+// Purpose: Called after all visgroups have been completely loaded.  Checks for
 //			objects hidden but without a visgroup.
 // Input  : void
 //-----------------------------------------------------------------------------
@@ -1099,8 +1104,8 @@ bool CMapClass::RenderPreload(CRender3D *pRender, bool bNewContext)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pRender - 
+// Purpose:
+// Input  : *pRender -
 //-----------------------------------------------------------------------------
 void CMapClass::Render2D(CRender2D *pRender)
 {
@@ -1118,8 +1123,8 @@ void CMapClass::Render2D(CRender2D *pRender)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pRender - 
+// Purpose:
+// Input  : pRender -
 //-----------------------------------------------------------------------------
 void CMapClass::Render3D(CRender3D *pRender)
 {
@@ -1144,23 +1149,23 @@ void CMapClass::DoTransform(const VMatrix &matrix)
 
 
 //-----------------------------------------------------------------------------
-// Default logical box 
+// Default logical box
 //-----------------------------------------------------------------------------
-void CMapClass::GetRenderLogicalBox( Vector2D &mins, Vector2D &maxs ) 
-{ 
-	mins.Init( COORD_NOTINIT, COORD_NOTINIT ); 
-	maxs.Init( COORD_NOTINIT, COORD_NOTINIT ); 
+void CMapClass::GetRenderLogicalBox( Vector2D &mins, Vector2D &maxs )
+{
+	mins.Init( COORD_NOTINIT, COORD_NOTINIT );
+	maxs.Init( COORD_NOTINIT, COORD_NOTINIT );
 }
 
 const Vector2D& CMapClass::GetLogicalPosition( )
 {
-	static Vector2D pos( COORD_NOTINIT, COORD_NOTINIT ); 
-	return pos; 
+	static Vector2D pos( COORD_NOTINIT, COORD_NOTINIT );
+	return pos;
 }
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 size_t CMapClass::GetSize(void)
 {
@@ -1169,7 +1174,7 @@ size_t CMapClass::GetSize(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CMapClass::HitTest2D(CMapView2D *pView, const Vector2D &point, HitInfo_t &HitData)
 {
@@ -1177,7 +1182,7 @@ bool CMapClass::HitTest2D(CMapView2D *pView, const Vector2D &point, HitInfo_t &H
 	HitData.nDepth = g_MAX_MAP_COORD*3;
 	HitData.uData = 0;
 	bool bFoundHit = false;
-	
+
 	if ( !IsVisible() )
 		return false;
 
@@ -1204,7 +1209,7 @@ bool CMapClass::HitTest2D(CMapView2D *pView, const Vector2D &point, HitInfo_t &H
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CMapClass::HitTestLogical(CMapViewLogical *pView, const Vector2D &point, HitInfo_t &hitData)
 {
@@ -1224,7 +1229,7 @@ bool CMapClass::HitTestLogical(CMapViewLogical *pView, const Vector2D &point, Hi
 
 //-----------------------------------------------------------------------------
 // Purpose: Sets the selection state of this object's children.
-// Input  : eSelectionState - 
+// Input  : eSelectionState -
 //-----------------------------------------------------------------------------
 SelectionState_t CMapClass::SetSelectionState(SelectionState_t eSelectionState)
 {
@@ -1254,7 +1259,7 @@ void CMapClass::UpdateChild(CMapClass *pChild)
 
 //-----------------------------------------------------------------------------
 // Purpose: Returns a coordinate frame to render in
-// Input  : matrix - 
+// Input  : matrix -
 // Output : returns true if a new matrix is returned, false if it is invalid
 //-----------------------------------------------------------------------------
 bool CMapClass::GetTransformMatrix( VMatrix& matrix )
@@ -1271,14 +1276,14 @@ bool CMapClass::GetTransformMatrix( VMatrix& matrix )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pLoadInfo - 
-//			pWorld - 
-// Output : 
+// Purpose:
+// Input  : pLoadInfo -
+//			pWorld -
+// Output :
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapClass::LoadEditorCallback(CChunkFile *pFile, CMapClass *pObject)
 {
-	return(pFile->ReadChunk((KeyHandler_t)LoadEditorKeyCallback, pObject));
+	return pFile->ReadChunk(LoadEditorKeyCallback, pObject);
 }
 
 
@@ -1381,7 +1386,7 @@ void CMapClass::OnNotifyDependent(CMapClass *pObject, Notify_Dependent_t eNotify
 
 //-----------------------------------------------------------------------------
 // Purpose: Default implementation for saving editor-specific data. Does nothing.
-// Input  : pFile - 
+// Input  : pFile -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapClass::SaveEditorData(CChunkFile *pFile)
@@ -1391,8 +1396,8 @@ ChunkFileResult_t CMapClass::SaveEditorData(CChunkFile *pFile)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pFile - 
+// Purpose:
+// Input  : *pFile -
 // Output : ChunkFileResult_t
 //-----------------------------------------------------------------------------
 ChunkFileResult_t CMapClass::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
@@ -1485,8 +1490,8 @@ ChunkFileResult_t CMapClass::SaveVMF(CChunkFile *pFile, CSaveInfo *pSaveInfo)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pDependent - 
+// Purpose:
+// Input  : *pDependent -
 //-----------------------------------------------------------------------------
 void CMapClass::RemoveDependent(CMapClass *pDependent)
 {
@@ -1509,9 +1514,9 @@ void CMapClass::RemoveEditorKeys(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *szOldName - 
-//			*szNewName - 
+// Purpose:
+// Input  : *szOldName -
+//			*szNewName -
 //-----------------------------------------------------------------------------
 void CMapClass::ReplaceTargetname(const char *szOldName, const char *szNewName)
 {
@@ -1586,8 +1591,8 @@ void CMapClass::UpdateParent(CMapClass *pNewParent)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *szKey - 
+// Purpose:
+// Input  : *szKey -
 // Output : const char
 //-----------------------------------------------------------------------------
 void CMapClass::SetEditorKeyValue(const char *szKey, const char *szValue)
@@ -1598,7 +1603,7 @@ void CMapClass::SetEditorKeyValue(const char *szKey, const char *szValue)
 	}
 
 	Assert( m_pEditorKeys != NULL );
-	
+
 	m_pEditorKeys->AddKeyValue(szKey, szValue);
 }
 
@@ -1611,7 +1616,7 @@ void CMapClass::SetEditorKeyValue(const char *szKey, const char *szValue)
 void CMapClass::SetOrigin( Vector &origin )
 {
 	CMapPoint::SetOrigin( origin );
- 
+
 	FOR_EACH_OBJ( m_Children, pos )
 	{
 		CMapClass *pChild = m_Children.Element( pos );
@@ -1623,8 +1628,8 @@ void CMapClass::SetOrigin( Vector &origin )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : bVisible - 
+// Purpose:
+// Input  : bVisible -
 //-----------------------------------------------------------------------------
 void CMapClass::SetVisible(bool bVisible)
 {
@@ -1639,10 +1644,10 @@ void CMapClass::SetVisible(bool bVisible)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : bShow - 
+// Purpose:
+// Input  : bShow -
 //-----------------------------------------------------------------------------
-void CMapClass::VisGroupShow(bool bShow, VisGroupSelection eVisGroup) 
+void CMapClass::VisGroupShow(bool bShow, VisGroupSelection eVisGroup)
 {
 	FOR_EACH_OBJ( m_Children, pos )
 	{
@@ -1653,7 +1658,7 @@ void CMapClass::VisGroupShow(bool bShow, VisGroupSelection eVisGroup)
 	if ( eVisGroup == AUTO )
 	{
 		m_bVisGroupAutoShown = bShow;
-	}		
+	}
 	if ( eVisGroup == USER )
 	{
 		//since user visgroup visibility has precedence over auto, it is possible to change an object's auto
@@ -1685,7 +1690,7 @@ void CMapClass::UpdateAllDependencies(CMapClass *pObject)
 		{
 			return;
 		}
-		
+
 		pWorld = pDoc->GetMapWorld();
 	}
 	else
@@ -1733,7 +1738,7 @@ bool CMapClass::CheckVisibility( bool bLoading )
 	int nVisGroupCount = m_VisGroups.Count();
 	bool bFoundOrphans = false;
 	CMapDoc *pDoc = CMapDoc::GetActiveMapDoc();
-	
+
 	for ( int i = 0; i < nVisGroupCount; i++ )
 	{
 		pVisGroup = m_VisGroups.Element( i );
@@ -1747,18 +1752,18 @@ bool CMapClass::CheckVisibility( bool bLoading )
 		}
 	}
 	if ( !bInAuto && !m_bVisGroupAutoShown )
-	{	
-		VisGroupShow( true, AUTO );			
-	}		
+	{
+		VisGroupShow( true, AUTO );
+	}
 	if ( !bInUser && !m_bVisGroupShown )
 	{
 		VisGroupShow( true, USER );
 		if ( bLoading && pDoc->VisGroups_ObjectCanBelongToVisGroup( this ) )
 		{
-			//if this object is an orphan, we want it to be hidden but placed in a new visgroup.			
-			bFoundOrphans = true;						
+			//if this object is an orphan, we want it to be hidden but placed in a new visgroup.
+			bFoundOrphans = true;
 			VisGroupShow( false, USER );
-		}				
+		}
 	}
 
 	return bFoundOrphans;

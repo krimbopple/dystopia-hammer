@@ -1,6 +1,6 @@
 //========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -28,7 +28,7 @@ class COP_Flags;
 
 
 //-----------------------------------------------------------------------------
-// Owner-draw list control that uses cool colors to show 
+// Owner-draw list control that uses cool colors to show
 // the state of items.
 //-----------------------------------------------------------------------------
 class CColoredListCtrl : public CListCtrl
@@ -40,7 +40,7 @@ public:
 	public:
 		// This is called for every item to get its colors.
 		virtual void GetItemColor( int iItem, COLORREF *pBackgroundColor, COLORREF *pTextColor ) = 0;
-		
+
 		// This is called for every item so you can draw custom stuff in its value column.
 		// The RECT inside the DRAWITEMSTRUCT contains the whole row, and pRect contains the rect for the value column only.
 		// Return true if you don't want CColoredListControl to draw its value.
@@ -49,7 +49,7 @@ public:
 
 public:
 	CColoredListCtrl( IItemColorCallback *pCallback );
-	
+
 	virtual void DrawItem( LPDRAWITEMSTRUCT p );
 
 private:
@@ -66,7 +66,7 @@ class CPickAnglesTarget : public IPickAnglesTarget
 
 		void AttachEntityDlg(COP_Entity *pDlg) { m_pDlg = pDlg; }
 		void OnNotifyPickAngles(const Vector &vecPos);
-	
+
 	private:
 
 		COP_Entity *m_pDlg;
@@ -86,7 +86,7 @@ class CPickEntityTarget : public IPickEntityTarget
 		void AttachEntityDlg(COP_Entity *pDlg) { m_pDlg = pDlg; }
 		inline void SetKeyToRetrieve(const char *pszKey);
 		void OnNotifyPickEntity(CToolPickEntity *pTool);
-	
+
 	private:
 
 		char m_szKey[MAX_KEYVALUE_LEN];		// The name of the key we are going to slurp out of the entity.
@@ -95,7 +95,7 @@ class CPickEntityTarget : public IPickEntityTarget
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CPickEntityTarget::CPickEntityTarget()
 {
@@ -105,8 +105,8 @@ CPickEntityTarget::CPickEntityTarget()
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pszKey - 
+// Purpose:
+// Input  : pszKey -
 //-----------------------------------------------------------------------------
 void CPickEntityTarget::SetKeyToRetrieve(const char *pszKey)
 {
@@ -123,7 +123,7 @@ class CPickFaceTarget : public IPickFaceTarget
 
 		void AttachEntityDlg(COP_Entity *pDlg) { m_pDlg = pDlg; }
 		void OnNotifyPickFace(CToolPickFace *pTool);
-	
+
 	private:
 
 		COP_Entity *m_pDlg;
@@ -145,7 +145,7 @@ public:
 	CSmartControlTargetNameRouter( COP_Entity *pDlg );
 
 	virtual void OnTextChanged( const char *pText );
-	
+
 private:
 	COP_Entity *m_pDlg;
 };
@@ -155,7 +155,7 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 {
 	DECLARE_DYNCREATE(COP_Entity)
 	typedef CObjectPage BaseClass;
-	
+
 	friend int InternalSortByColumn( COP_Entity *pDlg, const char *pShortName1, const char *pShortName2, int iColumn );
 	friend int CALLBACK SortByItemEditedState( LPARAM iItem1, LPARAM iItem2, LPARAM lpParam );
 	friend class CColoredListCtrl;
@@ -182,7 +182,7 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 
 		void SetFlagsPage( COP_Flags *pFlagsPage );
 		void OnUpdateSpawnFlags( unsigned long preserveMask, unsigned long newValues );
-		
+
 		//{{AFX_DATA(COP_Entity)
 		CAngleCombo m_AngleEdit;
 		CAngleCombo m_SmartAngleEdit;
@@ -204,12 +204,12 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 	protected:
 
 	// Implementation of CFilteredComboBox::ICallbacks for m_cClasses.
-	
+
 		virtual void OnTextChanged( const char *pText );
 		virtual bool OnUnknownEntry( const char *pText );
 
 	// This gets routed from m_pSmartControl (for target names).
-		
+
 		virtual void OnSmartControlTargetNameChanged( const char *pText );
 
 	// Implementation of CColoredListCtrl::IItemColorCallback.
@@ -220,7 +220,7 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 
 	// Other functions.
 
-		// If pMissingTarget is set to true, then it is a 
+		// If pMissingTarget is set to true, then it is a
 		void GetKeyState( const char *pShortName, EKeyState *pState, bool *pMissingTarget );
 		void ResortItems();
 		void LoadClassList();
@@ -260,6 +260,7 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 		afx_msg BOOL OnApply(void);
 		afx_msg void OnBrowse(void);
 		afx_msg void OnPlaySound(void);
+		afx_msg void OnEditInstance(void);
 		virtual BOOL OnInitDialog();
 		afx_msg void OnSelchangeKeyvalues();
 		afx_msg void OnRemovekeyvalue();
@@ -306,9 +307,9 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 
 		void UpdateAnchors();
 		void AssignClassDefaults(GDclass *pClass, GDclass *pOldClass);
-		
+
 		int GetKeyValueRowByShortName( const char *pShortName );		// Find the row in the listctrl that the var is at. Returns -1 if not found.
-		
+
 		void RefreshKVListValues( const char *pOnlyThisVar = NULL );
 		void PresentProperties();
 		void ClearVarList();
@@ -319,9 +320,9 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 
 
 	private:
-	
+
 		CAnchorMgr m_AnchorMgr;
-		
+
 		CString m_szOldKeyName;
 		bool m_bWantSmartedit;
 		bool m_bEnableControlUpdate;	// Whether to reflect changes to the edit control into other controls.
@@ -341,15 +342,15 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 										// until the user hits Apply.
 
 		short m_VarMap[GD_MAX_VARIABLES];
-		
+
 		CWnd *m_pSmartControl;			// current smartedit control
 		CButton *m_pSmartBrowseButton;
 		CUtlVector<CWnd *> m_SmartControls;
-		
+
 		// The last variable we setup smart controls for.
 		GDinputvariable *m_pLastSmartControlVar;
 		CString m_LastSmartControlVarValue;
-		
+
 		CString m_strLastKey;			// Active key when SaveData was called.
 
 		GDclass *m_pEditClass;			// The class of the object that we are editing.
@@ -360,7 +361,7 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 
 		bool	 m_bIgnoreKVChange;			// Set to ignore Windows notifications when setting up controls.
 		bool	 m_bChangingKeyName;
-		
+
 		int		m_iLastClassListSolidClasses;	// Used to prevent reinitializing the class list unnecessarily.
 
 		bool m_bPicking;					// A picking tool is currently active.
@@ -371,11 +372,11 @@ class COP_Entity : public CObjectPage, CFilteredComboBox::ICallbacks, public CCo
 		CPickAnglesTarget m_PickAnglesTarget;
 		CPickEntityTarget m_PickEntityTarget;
 		CPickFaceTarget m_PickFaceTarget;
-		
+
 		COP_Flags *m_pFlagsPage;
-		
+
 		CSmartControlTargetNameRouter m_SmartControlTargetNameRouter;
-		
+
 		// Used when multiselecting classes to remember whether they've selected a class
 		// or not yet.
 		bool m_bClassSelectionEmpty;

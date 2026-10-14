@@ -17,7 +17,7 @@
 //				OnPressed Door01 Open 0 0
 //
 //			because it is the only connection that is common to both entities.
-//			Editing an entry in the grid control modifies the corresponding 
+//			Editing an entry in the grid control modifies the corresponding
 //			connection in all selected entities.
 //
 // TODO: persist sort column index, sort directions, and column sizes
@@ -232,7 +232,7 @@ void COP_OutputPickEntityTarget::OnNotifyPickEntity(CToolPickEntity *pTool)
 				m_pDlg->OnEditUpdateParam();
 				break;
 			}
-			
+
 			default:
 			{
 				m_pDlg->GetDlgItem(m_nDlgItem)->SetWindowText(pszName);
@@ -284,7 +284,7 @@ void COP_Output::OnTextChanged( const char *pText )
 {
 	if ( m_bIgnoreTextChanged )
 		return;
-	
+
 	// Updating the listbox data, will trigger the edit
 	// controls to update.  They don't need to be
 	bSkipEditControlRefresh = true;
@@ -302,7 +302,7 @@ void COP_Output::OnTextChanged( const char *pText )
 
 //------------------------------------------------------------------------------
 // Purpose: Updates the validity flag on the given item in the list control
-// Input  : nItem - 
+// Input  : nItem -
 //------------------------------------------------------------------------------
 void COP_Output::UpdateItemValidity(int nItem)
 {
@@ -321,7 +321,7 @@ void COP_Output::UpdateItemValidity(int nItem)
 			nIcon = ICON_CONN_GOOD;
 		else
 			nIcon = ICON_CONN_GOOD_GREY;
-		
+
 		pOutputConn->m_bIsValid = true;
 	}
 	else
@@ -341,7 +341,7 @@ void COP_Output::UpdateValidityButton(void)
 	CObjectProperties *pParent = (CObjectProperties*) GetParent();
 
 	// Get status of all connections
-	int nItemCount = m_ListCtrl.GetItemCount();	
+	int nItemCount = m_ListCtrl.GetItemCount();
 
 	if (nItemCount == 0)
 	{
@@ -398,9 +398,9 @@ bool COP_Output::ValidateConnections(COutputConnection *pOutputConn, bool bVisib
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pEntity - 
-//			bFirst - 
+// Purpose:
+// Input  : pEntity -
+//			bFirst -
 //-----------------------------------------------------------------------------
 void COP_Output::AddEntityConnections(CMapEntity *pEntity, bool bFirst)
 {
@@ -417,7 +417,7 @@ void COP_Output::AddEntityConnections(CMapEntity *pEntity, bool bFirst)
 		{
 			// First check if the connection already exists, if so just add to it
 			bool bFound = false;
-			int nItemCount = m_ListCtrl.GetItemCount();	
+			int nItemCount = m_ListCtrl.GetItemCount();
 
 			if (nItemCount > 0)
 			{
@@ -441,7 +441,7 @@ void COP_Output::AddEntityConnections(CMapEntity *pEntity, bool bFirst)
 					}
 				}
 			}
-			
+
 			if (!bFound)
 			{
 				m_ListCtrl.SetItemCount(nItemCount + 1);
@@ -462,8 +462,8 @@ void COP_Output::AddEntityConnections(CMapEntity *pEntity, bool bFirst)
 				m_ListCtrl.SetItemText(nItemCount, ONLY_ONCE_COLUMN, (pConnection->GetTimesToFire() == EVENT_FIRE_ALWAYS) ? "No" : "Yes");
 				m_ListCtrl.SetItemText(nItemCount, PARAMETER_COLUMN, pConnection->GetParam());
 
-				
-				// Set list ctrl data 
+
+				// Set list ctrl data
 				COutputConnection* pOutputConn	= new COutputConnection;
 				pOutputConn->m_pConnList		= new CEntityConnectionList;
 				pOutputConn->m_pEntityList		= new CMapEntityList;
@@ -471,7 +471,7 @@ void COP_Output::AddEntityConnections(CMapEntity *pEntity, bool bFirst)
 				pOutputConn->m_pEntityList->AddToTail(pEntity);
 				pOutputConn->m_bOwnedByAll		= true;
 				m_ListCtrl.SetItemData(nItemCount, (DWORD)pOutputConn);
-				
+
 				nItemCount++;
 			}
 		}
@@ -482,8 +482,8 @@ void COP_Output::AddEntityConnections(CMapEntity *pEntity, bool bFirst)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : pDX - 
+// Purpose:
+// Input  : pDX -
 //-----------------------------------------------------------------------------
 void COP_Output::DoDataExchange(CDataExchange *pDX)
 {
@@ -510,7 +510,7 @@ bool COP_Output::ShouldShowHiddenTargets()
 
 //------------------------------------------------------------------------------
 // Purpose: Enables or Disables all edit controls
-// Input  : bValue - 
+// Input  : bValue -
 //------------------------------------------------------------------------------
 void COP_Output::EnableEditControls(bool bValue)
 {
@@ -541,8 +541,8 @@ void COP_Output::EnableEditControls(bool bValue)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pMapEntityList - 
+// Purpose:
+// Input  : *pMapEntityList -
 //-----------------------------------------------------------------------------
 void COP_Output::SetMapEntityList(const CMapEntityList *pMapEntityList)
 {
@@ -589,7 +589,7 @@ void COP_Output::UpdateEditControls(void)
 		m_bIgnoreTextChanged = true;
 		m_ComboTarget.SelectItem(m_strTarget);
 		m_bIgnoreTextChanged = false;
-		
+
 		m_ComboInput.SetWindowText(m_strInput);
 		m_ComboOutput.SetWindowText(m_strOutput);
 		m_CheckBoxFireOnce.SetCheck(m_bFireOnce);
@@ -598,7 +598,7 @@ void COP_Output::UpdateEditControls(void)
 		char szTemp[MAX_PATH];
 		sprintf(szTemp, "%.2f", m_fDelay);
 		pDelayEdit->SetWindowText(szTemp);
-		
+
 		CComboBox* pParamEdit = ( CComboBox* )GetDlgItem( IDC_EDIT_CONN_PARAM );
 		pParamEdit->SetWindowText(m_strParam);
 
@@ -663,7 +663,7 @@ void COP_Output::EmptyCopyBuffer(void)
 		}
 	}
 	m_pConnectionBuffer->RemoveAll();
-	
+
 }
 
 
@@ -748,7 +748,7 @@ void COP_Output::OnPaste(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void COP_Output::OnPickEntity(void)
 {
@@ -778,7 +778,7 @@ void COP_Output::OnPickEntity(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void COP_Output::OnPickEntityParam(void)
 {
@@ -852,7 +852,7 @@ void COP_Output::OnDelete(void)
 									}
 								}
 
-								//								
+								//
 								// Remove the connection from the upstream list of all entities it targets.
 								//
 								CMapEntityList *pTargetList = pConnection->GetTargetEntityList();
@@ -868,16 +868,20 @@ void COP_Output::OnDelete(void)
 							
 							delete pConnection;
 						}
-						
+
 						delete pConnList;
 					}
+					pOutputConn->m_pEntityList->RemoveAll();
+					delete pOutputConn->m_pEntityList;
+					delete pOutputConn;
+		
 					// Keep track of last item so can set selection focus
 					nLastItem = nItem;
 				}
 			}
 		}
 
-		// Set selection focus as point of deletion or on last item 
+		// Set selection focus as point of deletion or on last item
 		int nNumItems = m_ListCtrl.GetItemCount()-1;
 		if (nLastItem > nNumItems)
 		{
@@ -891,7 +895,7 @@ void COP_Output::OnDelete(void)
 
 //------------------------------------------------------------------------------
 // Purpose : Take the user to the output page of the selected entity that
-//			 targets me.  
+//			 targets me.
 // Input   :
 // Output  :
 //------------------------------------------------------------------------------
@@ -900,7 +904,7 @@ void COP_Output::OnMark(void)
 	int			nCount	= m_ListCtrl.GetItemCount();
 	CMapDoc*	pDoc	= CMapDoc::GetActiveMapDoc();
 
-	CEntityConnection *pConnection = NULL; 
+	CEntityConnection *pConnection = NULL;
 
 	if (nCount > 0 && pDoc)
 	{
@@ -934,7 +938,7 @@ void COP_Output::OnMark(void)
 			// (a bit squirly way of doing this)
 			if ( Select.Count()==1 )
 				GetMainWnd()->pObjectProperties->SetPageToInput(pConnection);
-		
+
 			pDoc->Center2DViewsOnSelection();
 		}
 		else
@@ -959,7 +963,7 @@ BOOL COP_Output::OnInitDialog(void)
 	m_CheckBoxFireOnce.SubclassDlgItem(IDC_EDIT_CONN_FIRE_ONCE, this);
 
 	m_ListCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | LVS_EX_HEADERDRAGDROP);
-	
+
 	m_ListCtrl.InsertColumn(ICON_COLUMN, "", LVCFMT_CENTER, 20);
 	m_ListCtrl.InsertColumn(OUTPUT_NAME_COLUMN, "My Output", LVCFMT_LEFT, 70);
 	m_ListCtrl.InsertColumn(TARGET_NAME_COLUMN, "Target Entity", LVCFMT_LEFT, 70);
@@ -981,7 +985,7 @@ BOOL COP_Output::OnInitDialog(void)
 
 	// Select the first item in the combo box
 	SetSelectedItem(0);
-	   
+
 	// Create image list.  Is deleted automatically when listctrl is deleted
 	if (!m_pImageList)
 	{
@@ -1014,7 +1018,7 @@ BOOL COP_Output::OnInitDialog(void)
 		pButton->SetIcon(hIcon);
 	}
 
-	CAnchorDef anchorDefs[] = 
+	CAnchorDef anchorDefs[] =
 	{
 		CAnchorDef( IDC_LIST, k_eSimpleAnchorAllSides ),
 		CAnchorDef( IDC_OUTPUTS_STATIC_PANEL, k_eAnchorLeft, k_eAnchorBottom, k_eAnchorRight, k_eAnchorBottom ),
@@ -1036,7 +1040,7 @@ BOOL COP_Output::OnInitDialog(void)
 		CAnchorDef( IDC_COPY, k_eSimpleAnchorBottomSide ),
 		CAnchorDef( IDC_PASTE, k_eSimpleAnchorBottomSide ),
 		CAnchorDef( IDC_DELETE, k_eSimpleAnchorBottomSide ),
-		CAnchorDef( IDC_SHOWHIDDENTARGETS, k_eSimpleAnchorBottomRight )		
+		CAnchorDef( IDC_SHOWHIDDENTARGETS, k_eSimpleAnchorBottomRight )
 	};
 	m_AnchorMgr.Init( GetSafeHwnd(), anchorDefs, ARRAYSIZE( anchorDefs ) );
 
@@ -1047,10 +1051,10 @@ BOOL COP_Output::OnInitDialog(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : wParam - 
-//			lParam - 
-//			pResult - 
+// Purpose:
+// Input  : wParam -
+//			lParam -
+//			pResult -
 // Output : Returns TRUE on success, FALSE on failure.
 //-----------------------------------------------------------------------------
 BOOL COP_Output::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult)
@@ -1082,7 +1086,7 @@ BOOL COP_Output::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult)
 							eSortDirection = Sort_Ascending;
 						}
 					}
-					
+
 					//
 					// Update the sort column and sort the list.
 					//
@@ -1113,7 +1117,7 @@ BOOL COP_Output::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT *pResult)
 					// Forget the saved param, because it was for a different I/O connection.
 					m_strLastParam.Empty();
 				}
-				
+
 				return(TRUE);
 			}
 		}
@@ -1153,9 +1157,9 @@ void COP_Output::RemoveAllEntityConnections(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : Mode - 
-//			pData - 
+// Purpose:
+// Input  : Mode -
+//			pData -
 //-----------------------------------------------------------------------------
 void COP_Output::UpdateData(int Mode, PVOID pData)
 {
@@ -1206,7 +1210,7 @@ void COP_Output::UpdateEntityList(void)
 		FOR_EACH_OBJ( *m_pObjectList, pos )
 		{
 			CMapClass *pObject = m_pObjectList->Element(pos);
-	
+
 			if ((pObject != NULL) && (pObject->IsMapClass(MAPCLASS_TYPE(CMapEntity))) )
 			{
 				CMapEntity *pEntity = (CMapEntity *)pObject;
@@ -1218,9 +1222,9 @@ void COP_Output::UpdateEntityList(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : nColumn - 
-//			eDirection - 
+// Purpose:
+// Input  : nColumn -
+//			eDirection -
 //-----------------------------------------------------------------------------
 void COP_Output::SetSortColumn(int nColumn, SortDirection_t eDirection)
 {
@@ -1310,7 +1314,7 @@ void COP_Output::SortListByColumn(int nColumn, SortDirection_t eDirection)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void COP_Output::ResizeColumns(void)
 {
@@ -1327,10 +1331,10 @@ void COP_Output::ResizeColumns(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void COP_Output::UpdateConnectionList(void)
-{	
+{
 	// Get list of all entities in the world
 	CMapDoc *pDoc = CMapDoc::GetActiveMapDoc();
 	Assert(pDoc != NULL);
@@ -1358,7 +1362,7 @@ void COP_Output::UpdateConnectionList(void)
 			bFirst = false;
 		}
 	}
-	
+
 	// Update validity flag on all items
 	for (int nItem = 0; nItem < m_ListCtrl.GetItemCount(); nItem++)
 	{
@@ -1372,14 +1376,14 @@ void COP_Output::UpdateConnectionList(void)
 
 //------------------------------------------------------------------------------
 // Purpose: Set the selected item in the listbox by index.
-// Input  : nSelectItem - 
+// Input  : nSelectItem -
 //------------------------------------------------------------------------------
 void COP_Output::SetSelectedItem(int nSelectItem)
 {
 	m_ListCtrl.SetRedraw(FALSE);
 
 	// Set selected item to be active and all others to false
-	int nItemCount = m_ListCtrl.GetItemCount();	
+	int nItemCount = m_ListCtrl.GetItemCount();
 	for (int nItem = 0; nItem < nItemCount; nItem++)
 	{
 		if (nItem == nSelectItem)
@@ -1408,7 +1412,7 @@ void COP_Output::SetSelectedConnection(CEntityConnection *pConnection)
 	m_ListCtrl.SetRedraw(FALSE);
 
 	// Set selected item to be active and all others to false
-	int nItemCount = m_ListCtrl.GetItemCount();	
+	int nItemCount = m_ListCtrl.GetItemCount();
 	for (int nItem = 0; nItem < nItemCount; nItem++)
 	{
 		COutputConnection *pOutputConn = (COutputConnection *)m_ListCtrl.GetItemData(nItem);
@@ -1595,7 +1599,7 @@ void COP_Output::UpdateEditedDelays(void)
 		{
 			if (m_ListCtrl.GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED)
 			{
-				m_ListCtrl.SetItemText(nItem, DELAY_COLUMN, strDelay);	
+				m_ListCtrl.SetItemText(nItem, DELAY_COLUMN, strDelay);
 			}
 		}
 		ResizeColumns();
@@ -1635,7 +1639,7 @@ void COP_Output::UpdateEditedParams(void)
 		{
 			if (m_ListCtrl.GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED)
 			{
-				m_ListCtrl.SetItemText(nItem, PARAMETER_COLUMN, strParam);	
+				m_ListCtrl.SetItemText(nItem, PARAMETER_COLUMN, strParam);
 			}
 		}
 		ResizeColumns();
@@ -1668,7 +1672,7 @@ void COP_Output::UpdateEditedInputs(void)
 	{
 		if (m_ListCtrl.GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED)
 		{
-			m_ListCtrl.SetItemText(nItem, INPUT_NAME_COLUMN, strInput);	
+			m_ListCtrl.SetItemText(nItem, INPUT_NAME_COLUMN, strInput);
 			UpdateItemValidity(nItem);
 		}
 	}
@@ -1736,7 +1740,7 @@ void COP_Output::UpdateEditedTargets(void)
 	{
 		if (m_ListCtrl.GetItemState(nItem, LVIS_SELECTED) & LVIS_SELECTED)
 		{
-			m_ListCtrl.SetItemText(nItem, TARGET_NAME_COLUMN, strTarget);	
+			m_ListCtrl.SetItemText(nItem, TARGET_NAME_COLUMN, strTarget);
 			UpdateItemValidity(nItem);
 		}
 	}
@@ -1756,13 +1760,13 @@ void COP_Output::EnableTarget(bool bEnable)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pConnection - 
+// Purpose:
+// Input  : *pConnection -
 //-----------------------------------------------------------------------------
 void COP_Output::SetConnection(CEntityConnectionList *pConnectionList)
 {
 	Assert(pConnectionList != NULL);
-	
+
 	// Fill edit boxes.  Disable for multiple connections have incompatible data
 	bool		bFirst		= true;
 	CButton*	pFireEdit	= ( CButton* )GetDlgItem( IDC_EDIT_CONN_FIRE_ONCE );
@@ -1774,7 +1778,7 @@ void COP_Output::SetConnection(CEntityConnectionList *pConnectionList)
 	m_ComboInput.EnableWindow(true);
 	pFireEdit->EnableWindow(true);
 	pDelayEdit->EnableWindow(true);
-	pParamEdit->EnableWindow(true);  
+	pParamEdit->EnableWindow(true);
 	GetDlgItem(IDC_PICK_ENTITY_PARAM)->EnableWindow( false );
 	m_bEntityParamTarget = false;
 
@@ -1908,7 +1912,7 @@ void COP_Output::AddEntityOutputs(CMapEntity *pEntity)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void COP_Output::FillInputList(void)
 {
@@ -1926,7 +1930,7 @@ void COP_Output::FillInputList(void)
 	// CUtlVector<GDclass*> classCache;
 	CUtlRBTree<int,int> classCache;
 	SetDefLessFunc( classCache );
-	
+
 	FOR_EACH_OBJ( *m_pMapEntityList, pos )
 	{
 		CMapEntity *pEntity = m_pMapEntityList->Element(pos);
@@ -1934,7 +1938,7 @@ void COP_Output::FillInputList(void)
 
 		if (pEntity == NULL)
 			continue;
-		
+
 		//
 		// Get the entity's class, which contains the list of inputs that this entity exposes.
 		//
@@ -1948,7 +1952,7 @@ void COP_Output::FillInputList(void)
 			continue;
 
 		classCache.Insert( (int)pClass );
-			
+
 		//
 		// Add this class' inputs to the list.
 		//
@@ -2018,7 +2022,7 @@ void COP_Output::FillOutputList(void)
 	m_ComboOutput.ResetContent();
 
 	bool bFirst = true;
-	
+
 	FOR_EACH_OBJ( m_EntityList, pos )
 	{
 		CMapEntity *pEntity = m_EntityList.Element(pos);
@@ -2036,7 +2040,7 @@ void COP_Output::FillOutputList(void)
 			//
 			// All subsequent entities filter the output list.
 			//
-			FilterEntityOutputs(pEntity);	
+			FilterEntityOutputs(pEntity);
 		}
 	}
 
@@ -2100,7 +2104,7 @@ void COP_Output::FilterEntityOutputs(CMapEntity *pEntity)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void COP_Output::FilterOutputList(void)
 {
@@ -2144,7 +2148,7 @@ void COP_Output::FilterInputList(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void COP_Output::FilterTargetList(void)
 {
@@ -2164,7 +2168,7 @@ void COP_Output::FilterTargetList(void)
 		for (int i = nCount - 1; i >= 0; i--)
 		{
 			CMapEntityList *pTargets = (CMapEntityList *)m_ComboTarget.GetItemDataPtr(i);
-						
+
 			if (!MapEntityList_HasInput(pTargets, pInput->GetName(), pInput->GetType()))
 			{
 				m_ComboTarget.DeleteString(i);
@@ -2274,7 +2278,7 @@ void COP_Output::OnShowHiddenTargetsAsBroken()
 {
 	// Remember the last state of this checkbox.
 	Options.general.bShowHiddenTargetsAsBroken = (m_ctlShowHiddenTargetsAsBroken.GetCheck() != FALSE);
-	
+
 	// Refresh.
 	int nCount = m_ListCtrl.GetItemCount();
 	for ( int i=0; i < nCount; i++ )
@@ -2354,7 +2358,7 @@ void COP_Output::OnEditUpdateOutput(void)
 
 
 //-----------------------------------------------------------------------------
-// Purpose: Called when selection of parameter combo box chages 
+// Purpose: Called when selection of parameter combo box chages
 //-----------------------------------------------------------------------------
 void COP_Output::OnSelChangeParam(void)
 {
