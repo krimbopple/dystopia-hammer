@@ -128,4 +128,27 @@
             "MaterialExcludeCount"		"0"
         }
     }
+    "Dystopia"
+    {
+        "GameDir"		"..\..\Dystopia\dystopia"
+        "Hammer"
+        {
+            "GameData0"		"..\..\Dystopia\bin\win32\base.fgd"
+            "GameData1"		"..\..\Dystopia\dystopia\dystopia.fgd"
+            "GameData2"		"..\..\Dystopia\bin\win32\propper.fgd"
+            "DefaultTextureScale"		"0.250000"
+            "DefaultLightmapScale"		"16"
+            "GameExe"		"..\..\Dystopia\bin\win32\dystopia.exe"
+            "DefaultSolidEntity"		"func_detail"
+            "DefaultPointEntity"		"info_player_start"
+            "BSP"		"..\..\Dystopia\bin\win32\vbsp.exe"
+            "Vis"		"..\..\Dystopia\bin\win32\vvis.exe"
+            "Light"		"..\..\Dystopia\bin\win32\vrad.exe"
+            "GameExeDir"		"..\..\Dystopia\bin\win32"
+            "MapDir"		"..\..\Dystopia\mapsrc"
+            "BSPDir"		"..\..\Dystopia\dystopia\maps"
+            "CordonTexture"		"tools/toolsskybox"
+            "MaterialExcludeCount"		"0"
+        }
+    }
 }

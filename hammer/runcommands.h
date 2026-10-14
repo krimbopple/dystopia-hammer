@@ -24,7 +24,7 @@ enum
 class KeyValues;
 
 // command:
-typedef struct
+typedef struct CCommand_t
 {
 	BOOL bEnable;				// Run this command?
 
